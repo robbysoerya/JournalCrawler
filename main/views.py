@@ -31,6 +31,7 @@ def crawl(request):
 
         # take url comes from client. (From an input may be?)
         url = request.POST.get('url', None)
+        limit = request.POST.get('limit', None)
 
         if not url:
             return JsonResponse({'error': 'Missing  args'})
@@ -56,7 +57,7 @@ def crawl(request):
         # This returns a ID which belongs and will be belong to this task
         # We are goint to use that to check task's status.
         task = scrapyd.schedule('default', 'toscrape-css',
-                                settings=settings, url=url, domain=domain)
+                                settings=settings, url=url, domain=domain, limit=limit)
 
         return JsonResponse({'task_id': task, 'unique_id': unique_id, 'status': 'started', 'domain': domain})
 

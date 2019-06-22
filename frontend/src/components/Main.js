@@ -5,6 +5,7 @@ class Home extends React.Component {
       super(props)
       this.state = {
           url: '',
+          limit: '',
           crawlingStatus: null,
           data: null,
           taskID: null,
@@ -25,7 +26,7 @@ class Home extends React.Component {
     // send a post request to client when form button clicked
     // django response back with task_id and unique_id.
     // We have created them in views.py file, remember?
-    $.post('/api/crawl/', { url: this.state.url }, resp => {
+    $.post('/api/crawl/', { url: this.state.url, limit: this.state.limit }, resp => {
         if (resp.error) {
             alert(resp.error)
             return
@@ -74,11 +75,13 @@ class Home extends React.Component {
     renderData() {
         return (
             <div>
-                <table class="table table-striped table-bordered">
+                <table className="table table-striped table-bordered">
                     <thead>
-                        <th>No.</th>
-                        <th>Url</th>
-                        <th>Title</th>
+                        <tr>
+                            <th>No.</th>
+                            <th>Url</th>
+                            <th>Title</th>
+                        </tr>
                     </thead>
                     <tbody>
                         {this.state.data.map(function (data,i){
@@ -100,7 +103,7 @@ class Home extends React.Component {
 
     renderButton() {
     return (
-        <button type="submit" onClick={this.handleStartButton} class="btn btn-primary btn-sm">
+        <button type="submit" onClick={this.handleStartButton} className="btn btn-primary btn-sm">
         Run Crawl
         </button>
         
@@ -109,7 +112,7 @@ class Home extends React.Component {
 
     renderCheck() {
     return (
-        <button type="submit" onClick={this.checkCrawlStatus} class="btn btn-primary btn-sm">
+        <button type="submit" onClick={this.checkCrawlStatus} className="btn btn-primary btn-sm">
         Check
         </button>
         
@@ -162,23 +165,18 @@ class Home extends React.Component {
   render () {
     // render componenet
       return (<div>
-          <h1 class="page-title">Journal Scan Crawler</h1>
+          <h1 className="page-title">Journal Scan Crawler</h1>
           <hr />
-          <div class="container">
-              <div class="row">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon3">URL</span>
+          <div className="container">
+              <div className="row">
+                        <div className="input-group mb-3">
+                            <div className="input-group-prepend">
+                                <span className="input-group-text" id="basic-addon3">URL</span>
                             </div>
-                            <input type="text" onChange={this.handleChange} class="form-control" id="url" aria-describedby="basic-addon3"/>
+                            <input type="text" onChange={this.handleChange} className="form-control" id="url" aria-describedby="basic-addon3"/>
                         </div>
-                  <button type="submit" onClick={this.handleStartButton} class="btn btn-primary mr-1">
-                      Run Crawl
-                  </button>
-
-                  <button type="submit" onClick={this.checkCrawlStatus} class="btn btn-primary">
-                      Check
-                  </button>
+                      <input placeholder="Limit" className="form-control col-md-1" type="number" pattern="[0-9]" onChange={this.handleChange} id="limit" aria-describedby="basic-addon3"></input>
+                      <button type="submit" onClick={this.handleStartButton} className="btn btn-primary mx-sm-3">Run Crawl</button>
                   </div>
               </div>
           <hr />

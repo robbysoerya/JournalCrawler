@@ -21,7 +21,7 @@ class ScrapyAppPipeline(object):
         item.save()
 
     def process_item(self, item, spider):
-        self.items.append({'url':item['url'],'title':item['title']})
+        self.items.append({'url':item['url'],'title':item['title'],'reference':item['reference']})
         self.itema.unique_id = self.unique_id
         self.itema.data = json.dumps(self.items)
         self.itema.save()
