@@ -1,3 +1,4 @@
 db.*
 dbs/
 logs/
+node_modules

@@ -1,3 +1,5 @@
+import django
+import sys
 """
 Django settings for iCrawler project.
 
@@ -37,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main'
+    'main',
+    'rest_framework',
+    'frontend',
 ]
 
 MIDDLEWARE = [
@@ -119,3 +123,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MEDIA_URL = '/media/'
+# DJANGO INTEGRATION
+
+sys.path.append(os.path.dirname(os.path.abspath('.')))
+# Do not forget the change iCrawler part based on your project name
+os.environ['DJANGO_SETTINGS_MODULE'] = 'iCrawler.settings'
+
+# This is required only if Django Version > 1.8
+django.setup()
+
+# DJANGO INTEGRATION
+
+## Rest of settings are below ...

@@ -7,7 +7,6 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from scrapyd_api import ScrapydAPI
-from main.utils import URLUtil
 from main.models import ScrapyItem
 
 # connect scrapyd service
@@ -30,7 +29,8 @@ def crawl(request):
     # Post requests are for new crawling tasks
     if request.method == 'POST':
 
-        url = request.POST.get('url', None)  # take url comes from client. (From an input may be?)
+        # take url comes from client. (From an input may be?)
+        url = request.POST.get('url', None)
 
         if not url:
             return JsonResponse({'error': 'Missing  args'})
@@ -40,6 +40,7 @@ def crawl(request):
 
         domain = urlparse(url).netloc  # parse the url and extract the domain
         unique_id = str(uuid4())  # create a unique ID.
+        
 
         # This is the custom settings for scrapy spider.
         # We can send anything we want to use it inside spiders and pipelines.
@@ -54,10 +55,10 @@ def crawl(request):
         # But we can pass other arguments, though.
         # This returns a ID which belongs and will be belong to this task
         # We are goint to use that to check task's status.
-        task = scrapyd.schedule('default', 'icrawler',
+        task = scrapyd.schedule('default', 'toscrape-css',
                                 settings=settings, url=url, domain=domain)
 
-        return JsonResponse({'task_id': task, 'unique_id': unique_id, 'status': 'started'})
+        return JsonResponse({'task_id': task, 'unique_id': unique_id, 'status': 'started', 'domain': domain})
 
     # Get requests are for getting result of a specific crawling task
     elif request.method == 'GET':
@@ -77,12 +78,12 @@ def crawl(request):
         # If it is not finished we can return active status
         # Possible results are -> pending, running, finished
         status = scrapyd.job_status('default', task_id)
-        if status == 'finished':
-            try:
+        # if status == 'finished':
+        try:
                 # this is the unique_id that we created even before crawling started.
-                item = ScrapyItem.objects.get(unique_id=unique_id)
-                return JsonResponse({'data': item.to_dict['data']})
-            except Exception as e:
-                return JsonResponse({'error': str(e)})
-        else:
-            return JsonResponse({'status': status})
+            item = ScrapyItem.objects.get(unique_id=unique_id)
+            return JsonResponse({'data': item.to_dict['data']})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+        # else:
+        return JsonResponse({'status': status})

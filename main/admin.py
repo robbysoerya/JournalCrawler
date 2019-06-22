@@ -1,8 +1,8 @@
 from django.contrib import admin
-from main.models import Quote
+from main.models import ScrapyItem
 
-class QuoteAdmin(admin.ModelAdmin):
-    list_display = ('author', 'text', )
+class ScrapyAdmin(admin.ModelAdmin):
+    list_display = ('data',)
 
 # Register your models here.
-admin.site.register(Quote, QuoteAdmin)
+admin.site.register(ScrapyItem, ScrapyAdmin)
