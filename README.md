@@ -5,6 +5,7 @@
 * Configuration of scrapy in order to access Django models objects.
 * Basic scrapy pipeline to save crawled objets to Django models.
 * Basic spider definition
+* Simple front end with React
 
 ## Setup
 1 - Install requirements
