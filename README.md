@@ -1,13 +1,10 @@
-# Scrapyd-Django-Template
-Basic setup to run ScrapyD + Django and save it in Django Models. You can be up and running in just a few minutes. This template includes
+# Journal Crawler
 
 * Basic structure of a Django project.
 * Basic structure for scrapy.
 * Configuration of scrapy in order to access Django models objects.
 * Basic scrapy pipeline to save crawled objets to Django models.
 * Basic spider definition
-* Basic demo from the oficial tutorial that crawls data from http://quotes.toscrape.com
-
 
 ## Setup
 1 - Install requirements
