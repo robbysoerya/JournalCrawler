@@ -9,6 +9,7 @@ class Home extends React.Component {
       this.state = {
           url: '',
           limit: '',
+          publisher: '',
           loading: false,
           crawlingStatus: null,
           pagination: null,
@@ -31,10 +32,11 @@ class Home extends React.Component {
     // send a post request to client when form button clicked
     // django response back with task_id and unique_id.
     // We have created them in views.py file, remember?
-    $.post('/api/crawl/', { url: this.state.url, limit: this.state.limit }, resp => {
+    $.post('/api/crawl/', { url: this.state.url, limit: this.state.limit, publisher: this.state.publisher }, resp => {
         this.setState({'loading':true});
         if (resp.error) {
             alert(resp.error)
+            this.setState({'loading': false})
             return
         }
         // Update the state with new task and unique id
@@ -218,7 +220,8 @@ class Home extends React.Component {
                             </div>
                             <input type="text" onChange={this.handleChange} className="form-control" id="url" aria-describedby="basic-addon3"/>
                         </div>
-                      <input placeholder="Limit" className="form-control col-md-1" type="number" pattern="[0-9]" onChange={this.handleChange} id="limit" aria-describedby="basic-addon3"></input>
+                      <input placeholder="Limit" className="form-control col-md-1 mr-1" type="number" pattern="[0-9]" onChange={this.handleChange} id="limit" aria-describedby="basic-addon3"></input>
+                  <input placeholder="Publisher" type="text" onChange={this.handleChange} className="form-control col-md-4" id="publisher" aria-describedby="basic-addon3" />
                       {this.state.loading ? this.renderStartButton() : this.renderButton()}
                       </div>
               </div>

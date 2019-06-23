@@ -3,10 +3,12 @@ from django.conf.urls import url, static,include
 from django.urls import path
 from django.views.generic import TemplateView
 from main import views
+from django.contrib import admin
 
 urlpatterns = [
     path(r'home/', include('frontend.urls')),
     url(r'^api/crawl/', views.crawl, name='crawl'),
+    url(r'^admin/', admin.site.urls),
 ]
 
 # This is required for static files while in development mode. (DEBUG=TRUE)

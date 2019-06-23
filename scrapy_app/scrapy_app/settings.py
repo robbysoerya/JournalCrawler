@@ -78,6 +78,10 @@ ROBOTSTXT_OBEY = True
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'scrapy_app.pipelines.ScrapyAppPipeline': 300,
+    'scrapy_app.pipelines.JournalAppPipeline': 400,
+    'scrapy_app.pipelines.ArticleAppPipeline': 500,
+    'scrapy_app.pipelines.AuthorAppPipeline': 600,
+    'scrapy_app.pipelines.ReferencesAppPipeline': 700,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

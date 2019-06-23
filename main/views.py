@@ -32,9 +32,16 @@ def crawl(request):
         # take url comes from client. (From an input may be?)
         url = request.POST.get('url', None)
         limit = request.POST.get('limit', None)
-
+        publisher = request.POST.get('publisher',None)
+        
         if not url:
             return JsonResponse({'error': 'Missing  args'})
+
+        if not publisher:
+            return JsonResponse({'error': 'Missing Publisher'})
+
+        if not limit:
+            return JsonResponse({'error': 'Please give limit, whatever.'})    
 
         if not is_valid_url(url):
             return JsonResponse({'error': 'URL is invalid'})
@@ -47,6 +54,7 @@ def crawl(request):
         # We can send anything we want to use it inside spiders and pipelines.
         # I mean, anything
         settings = {
+            'publisher': publisher,
             'unique_id': unique_id,  # unique ID for each record for DB
             'USER_AGENT': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         }

@@ -1,26 +1,150 @@
-from main.models import ScrapyItem
+from main.models import ScrapyItem,Journal,Article,Author,References
+from django.core.exceptions import ObjectDoesNotExist
+import hashlib
 import json
 
+
+class ReferencesAppPipeline(object):
+    def __init__(self, publisher, *args, **kwargs):
+        self.publisher = publisher
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            # this will be passed from django view
+            publisher=crawler.settings.get('publisher'),
+        )
+
+    def close_spider(self, spider):
+        pass
+
+    def process_item(self, references, spider):
+        
+        titles = references['references']['title']
+        
+        for title in titles:
+            self.references = References()
+            c_article_id = Article.objects.latest('c_article_id')
+            self.references.c_article_id = c_article_id
+            self.references.title = title
+            self.references.save()
+
+        return references
+
+class AuthorAppPipeline(object):
+    def __init__(self, publisher, *args, **kwargs):
+        self.publisher = publisher
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            # this will be passed from django view
+            publisher=crawler.settings.get('publisher'),
+        )
+
+    def close_spider(self, spider):
+        pass
+
+    def process_item(self, author, spider):
+
+        names = author['author']['name']
+        affiliates = author['author']['affiliate']
+
+        for i in range(len(names)):
+            self.author = Author()
+            c_article_id = Article.objects.latest('c_article_id')
+            self.author.c_article_id = c_article_id
+            self.author.name = names[i]
+            try:
+                self.author.affiliate = affiliates[i]    
+                pass
+            except:
+
+            self.author.save()
+
+        return author
+
+class ArticleAppPipeline(object):
+    def __init__(self, publisher, *args, **kwargs):
+        self.publisher = publisher
+    @classmethod
+
+    def from_crawler(cls, crawler):
+        return cls(
+            # this will be passed from django view
+            publisher=crawler.settings.get('publisher'),
+        )
+
+    def close_spider(self, spider):
+        pass
+
+    def process_item(self, article, spider):
+
+        self.article = Article()
+        journal = Journal.objects.get(issn=article['article']['issn'])
+        self.article.c_journal_id = journal
+        self.article.title = article['article']['title']
+        self.article.abstract = article['article']['abstract']
+        self.article.doi = article['article']['doi']
+        self.article.keyword = article['article']['keyword']
+        self.article.publication_date = article['article']['publication_date']
+        self.article.uri = article['article']['uri']
+        self.article.pdf_uri = article['article']['pdf_uri']
+        self.article.save()
+
+        return article
+
+class JournalAppPipeline(object):
+    def __init__(self, publisher, *args, **kwargs):
+        self.publisher = publisher
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            # this will be passed from django view
+            publisher=crawler.settings.get('publisher'),
+        )
+
+    def close_spider(self, spider):
+        pass
+
+    def process_item(self, journal, spider):
+
+        self.journals = Journal()
+        self.journals.title = journal['journal']['title']
+        self.journals.volume = journal['journal']['volume']
+        self.journals.issue = journal['journal']['issue']
+        self.journals.issn = journal['journal']['issn']
+        self.journals.publisher = self.publisher
+        
+        try:
+            if Journal.objects.get(issn=journal['journal']['issn']):
+                pass   
+        except ObjectDoesNotExist:
+            self.journals.save()
+        return journal
+
 class ScrapyAppPipeline(object):
-    def __init__(self, unique_id, *args, **kwargs):
+    def __init__(self, unique_id, publisher, *args, **kwargs):
         self.unique_id = unique_id
+        self.publisher = publisher
         self.items = []
-        self.itema = ScrapyItem()
+        self.item_all = ScrapyItem()
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
             unique_id=crawler.settings.get('unique_id'), # this will be passed from django view
+            publisher=crawler.settings.get('publisher'),
         )
 
     def close_spider(self, spider):
-        # And here we are saving our crawled data with django models.
-        
         pass
 
     def process_item(self, item, spider):
-        self.items.append({'url':item['url'],'title':item['title'],'reference':item['reference']})
-        self.itema.unique_id = self.unique_id
-        self.itema.data = json.dumps(self.items)
-        self.itema.save()
+        self.items.append({'url':item['item']['url'],'title':item['item']['title']})
+        self.item_all.unique_id = self.unique_id
+        self.item_all.data = json.dumps(self.items)
+        self.item_all.save()
+
         return item
