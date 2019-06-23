@@ -83,7 +83,7 @@ def crawl(request):
         try:
                 # this is the unique_id that we created even before crawling started.
             item = ScrapyItem.objects.get(unique_id=unique_id)
-            return JsonResponse({'data': item.to_dict['data']})
+            return JsonResponse({'data': item.to_dict['data'],'status': status})
         except Exception as e:
             return JsonResponse({'error': str(e)})
         # else:

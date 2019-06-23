@@ -1,12 +1,17 @@
 import React from "react";
 import $ from 'jquery'
+import DataTable from 'datatables.net';
+import ReactToExcel from 'react-html-table-to-excel'
+import {Button,Spinner} from 'react-bootstrap'
 class Home extends React.Component {
   constructor(props) {
       super(props)
       this.state = {
           url: '',
           limit: '',
+          loading: false,
           crawlingStatus: null,
+          pagination: null,
           data: null,
           taskID: null,
           uniqueID: null
@@ -27,6 +32,7 @@ class Home extends React.Component {
     // django response back with task_id and unique_id.
     // We have created them in views.py file, remember?
     $.post('/api/crawl/', { url: this.state.url, limit: this.state.limit }, resp => {
+        this.setState({'loading':true});
         if (resp.error) {
             alert(resp.error)
             return
@@ -68,14 +74,14 @@ class Home extends React.Component {
               </button>
               { this.state.error }
           </div>
-      </div>      
+      </div>            
     );
   }
 
     renderData() {
         return (
             <div>
-                <table className="table table-striped table-bordered">
+                <table id="data" className="display table table-striped table-hover">
                     <thead>
                         <tr>
                             <th>No.</th>
@@ -95,19 +101,36 @@ class Home extends React.Component {
                         })}
                     </tbody>
                 </table>
+                <ReactToExcel 
+                className="btn btn-success"
+                table="data"
+                filename="data_excel"
+                sheet="sheet 1"
+                buttonText="Export To CSV"/>
             </div>
         );
     }
 
-
-
     renderButton() {
     return (
-        <button type="submit" onClick={this.handleStartButton} className="btn btn-primary btn-sm">
-        Run Crawl
-        </button>
+        <Button type="submit" onClick={this.handleStartButton} className="btn btn-primary mx-sm-3">
+            Run Crawl
+        </Button>
         
     );
+    }
+
+    renderStartButton() {
+        return(
+            <Button type="submit" onClick={this.handleStartButton} className="btn btn-primary mx-sm-3">
+                <Spinner as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className={this.state.loading ? 'hide' : 'show'} />
+        </Button>
+        );
     }
 
     renderCheck() {
@@ -124,7 +147,7 @@ class Home extends React.Component {
             <div>
             <div>Your Task ID : {this.state.taskID}</div>
             <div>Your Unique ID : {this.state.uniqueID}</div>
-            <div>Status Crawl : {this.state.crawlingStatus}</div>
+            {/* <div>Status Crawl : {this.state.crawlingStatus}</div> */}
             </div>
         );
     }
@@ -134,7 +157,19 @@ class Home extends React.Component {
       // Making a request to server to ask status of crawling job
       $.get('/api/crawl/',
             { task_id: this.state.taskID, unique_id: this.state.uniqueID }, resp => {
-          if (resp.data) {
+          
+        if (resp.status == "finished") {
+            clearInterval(this.statusInterval)
+            this.setState({'loading':false})
+            $(document).ready(function () {
+               $('#data').DataTable({
+                    button:['csv']    
+            });
+                $('#data').removeClass('display').addClass('table table-striped table-bordered');
+            });
+        }
+
+        if (resp.data) {
               // If response contains a data array
               // That means crawling completed and we have results here
               // No need to make more requests.
@@ -142,7 +177,8 @@ class Home extends React.Component {
               //clearInterval(this.statusInterval)
               this.setState({
                   data: resp.data,
-                  exist: true 
+                  exist: true,
+                  crawlingStatus: resp.status 
               })
           } else if (resp.error) {
               // If there is an error
@@ -161,6 +197,13 @@ class Home extends React.Component {
           }
       })
   }
+
+  renderPagination() {
+      return (
+      <script>
+      </script>
+      )
+  }
   
   render () {
     // render componenet
@@ -176,8 +219,8 @@ class Home extends React.Component {
                             <input type="text" onChange={this.handleChange} className="form-control" id="url" aria-describedby="basic-addon3"/>
                         </div>
                       <input placeholder="Limit" className="form-control col-md-1" type="number" pattern="[0-9]" onChange={this.handleChange} id="limit" aria-describedby="basic-addon3"></input>
-                      <button type="submit" onClick={this.handleStartButton} className="btn btn-primary mx-sm-3">Run Crawl</button>
-                  </div>
+                      {this.state.loading ? this.renderStartButton() : this.renderButton()}
+                      </div>
               </div>
           <hr />
           <div>{this.state.taskID ? this.renderText() : null}</div>

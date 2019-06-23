@@ -15,10 +15,8 @@ class ScrapyAppPipeline(object):
 
     def close_spider(self, spider):
         # And here we are saving our crawled data with django models.
-        item = ScrapyItem()
-        item.unique_id = self.unique_id
-        item.data = json.dumps(self.items)
-        item.save()
+        
+        pass
 
     def process_item(self, item, spider):
         self.items.append({'url':item['url'],'title':item['title'],'reference':item['reference']})
