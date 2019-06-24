@@ -10,6 +10,7 @@ class Home extends React.Component {
           url: '',
           limit: '',
           publisher: '',
+          scraped: null,
           loading: false,
           crawlingStatus: null,
           pagination: null,
@@ -39,6 +40,11 @@ class Home extends React.Component {
             this.setState({'loading': false})
             return
         }
+
+        // if (this.state.crawlingStatus == "finished")
+        $('#data').dataTable().fnDestroy();
+        //     clearInterval(this.statusInterval)
+        // }
         // Update the state with new task and unique id
         this.setState({
             taskID: resp.task_id,
@@ -83,6 +89,7 @@ class Home extends React.Component {
     renderData() {
         return (
             <div>
+                <div>Item Save : {this.state.scraped} of {this.state.limit}</div>
                 <table id="data" className="display table table-striped table-hover">
                     <thead>
                         <tr>
@@ -109,7 +116,7 @@ class Home extends React.Component {
                 filename="data_excel"
                 sheet="sheet 1"
                 buttonText="Export To CSV"/>
-            </div>
+                </div>
         );
     }
 
@@ -124,13 +131,14 @@ class Home extends React.Component {
 
     renderStartButton() {
         return(
-            <Button type="submit" onClick={this.handleStartButton} className="btn btn-primary mx-sm-3">
+            <Button disabled type="submit" onClick={this.handleStartButton} className="btn btn-primary mx-sm-3">
                 <Spinner as="span"
                     animation="border"
                     size="sm"
                     role="status"
                     aria-hidden="true"
                     className={this.state.loading ? 'hide' : 'show'} />
+                    Crawling...
         </Button>
         );
     }
@@ -149,9 +157,8 @@ class Home extends React.Component {
             <div>
             <div>Your Task ID : {this.state.taskID}</div>
             <div>Your Unique ID : {this.state.uniqueID}</div>
-            {/* <div>Status Crawl : {this.state.crawlingStatus}</div> */}
             </div>
-        );
+        )
     }
 
   checkCrawlStatus = () => {
@@ -180,7 +187,8 @@ class Home extends React.Component {
               this.setState({
                   data: resp.data,
                   exist: true,
-                  crawlingStatus: resp.status 
+                  crawlingStatus: resp.status,
+                  scraped: resp.item_scraped, 
               })
           } else if (resp.error) {
               // If there is an error
@@ -198,13 +206,6 @@ class Home extends React.Component {
               });
           }
       })
-  }
-
-  renderPagination() {
-      return (
-      <script>
-      </script>
-      )
   }
   
   render () {
@@ -228,7 +229,6 @@ class Home extends React.Component {
           <hr />
           <div>{this.state.taskID ? this.renderText() : null}</div>
           <div></div>{this.state.exist ? this.renderData() : null}</div>
-          
     )
   }
 }

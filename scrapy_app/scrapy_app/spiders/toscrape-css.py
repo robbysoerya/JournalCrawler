@@ -4,6 +4,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.item import Item, Field
 from scrapy.exceptions import CloseSpider
+from scrapy.log import ERROR
 import re,os,requests
 
 class MyItem(Item):

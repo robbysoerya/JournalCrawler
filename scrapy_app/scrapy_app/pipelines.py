@@ -1,9 +1,6 @@
 from main.models import ScrapyItem,Journal,Article,Author,References
 from django.core.exceptions import ObjectDoesNotExist
-import hashlib
 import json
-
-
 class ReferencesAppPipeline(object):
     def __init__(self, publisher, *args, **kwargs):
         self.publisher = publisher
@@ -60,7 +57,7 @@ class AuthorAppPipeline(object):
                 pass
             except:
 
-            self.author.save()
+                self.author.save()
 
         return author
 
@@ -125,8 +122,9 @@ class JournalAppPipeline(object):
         return journal
 
 class ScrapyAppPipeline(object):
-    def __init__(self, unique_id, publisher, *args, **kwargs):
+    def __init__(self, unique_id, stats, publisher, *args, **kwargs):
         self.unique_id = unique_id
+        self.stats = stats
         self.publisher = publisher
         self.items = []
         self.item_all = ScrapyItem()
@@ -136,6 +134,7 @@ class ScrapyAppPipeline(object):
         return cls(
             unique_id=crawler.settings.get('unique_id'), # this will be passed from django view
             publisher=crawler.settings.get('publisher'),
+            stats=crawler.stats
         )
 
     def close_spider(self, spider):
@@ -145,6 +144,11 @@ class ScrapyAppPipeline(object):
         self.items.append({'url':item['item']['url'],'title':item['item']['title']})
         self.item_all.unique_id = self.unique_id
         self.item_all.data = json.dumps(self.items)
+        if self.stats.get_value('item_scraped_count'):
+            self.item_all.item_scraped = self.stats.get_value('item_scraped_count')
+        else:
+            pass
         self.item_all.save()
+
 
         return item
