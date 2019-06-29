@@ -8,6 +8,5 @@ class ScrapyAdmin(admin.ModelAdmin):
 admin.site.register(ScrapyItem,ScrapyAdmin)
 admin.site.register(Journal)
 admin.site.register(Article)
-
 admin.site.register(Author)
 admin.site.register(References)

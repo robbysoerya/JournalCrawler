@@ -23,6 +23,7 @@ class Article(models.Model):
     keyword = models.TextField(null=True)
     uri = models.TextField(null=True)
     pdf_uri = models.TextField(null=True)
+    language = models.TextField(null=True,default=" ")
 
     c_journal_id = models.ForeignKey('Journal',on_delete=models.PROTECT)
 

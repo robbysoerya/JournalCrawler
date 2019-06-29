@@ -3,6 +3,7 @@ import $ from 'jquery'
 import DataTable from 'datatables.net';
 import ReactToExcel from 'react-html-table-to-excel'
 import {Button,Spinner} from 'react-bootstrap'
+
 class Home extends React.Component {
   constructor(props) {
       super(props)
@@ -211,7 +212,7 @@ class Home extends React.Component {
   render () {
     // render componenet
       return (<div>
-          <h1 className="page-title">Journal Scan Crawler</h1>
+          <h1 className="page-title">Journal Crawler</h1>
           <hr />
           <div className="container">
               <div className="row">
@@ -231,6 +232,5 @@ class Home extends React.Component {
           <div></div>{this.state.exist ? this.renderData() : null}</div>
     )
   }
-}
 
 export default Home

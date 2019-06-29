@@ -47,17 +47,19 @@ class AuthorAppPipeline(object):
         names = author['author']['name']
         affiliates = author['author']['affiliate']
 
+        #Split 
         for i in range(len(names)):
             self.author = Author()
             c_article_id = Article.objects.latest('c_article_id')
             self.author.c_article_id = c_article_id
             self.author.name = names[i]
+            self.author.affiliate = ""
             try:
                 self.author.affiliate = affiliates[i]    
-                pass
             except:
-
                 self.author.save()
+            
+            self.author.save()    
 
         return author
 
@@ -78,7 +80,10 @@ class ArticleAppPipeline(object):
     def process_item(self, article, spider):
 
         self.article = Article()
+
+        #Get c_journal_id from exist issn
         journal = Journal.objects.get(issn=article['article']['issn'])
+
         self.article.c_journal_id = journal
         self.article.title = article['article']['title']
         self.article.abstract = article['article']['abstract']
@@ -114,6 +119,7 @@ class JournalAppPipeline(object):
         self.journals.issn = journal['journal']['issn']
         self.journals.publisher = self.publisher
         
+        #Check exist journal, if exist, skip
         try:
             if Journal.objects.get(issn=journal['journal']['issn']):
                 pass   
@@ -132,7 +138,8 @@ class ScrapyAppPipeline(object):
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
-            unique_id=crawler.settings.get('unique_id'), # this will be passed from django view
+            # this will be passed from django view
+            unique_id=crawler.settings.get('unique_id'), 
             publisher=crawler.settings.get('publisher'),
             stats=crawler.stats
         )
@@ -149,6 +156,5 @@ class ScrapyAppPipeline(object):
         else:
             pass
         self.item_all.save()
-
 
         return item

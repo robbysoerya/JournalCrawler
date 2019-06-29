@@ -27,6 +27,7 @@ class ArticleItem(Item):
     uri = Field()
     pdf_uri = Field()
     issn = Field()
+    language = Field()
 
 class ReferencesItem(Item):
     title = Field()
@@ -85,7 +86,7 @@ class ToScrapeCSSSpider(CrawlSpider):
                 date = response.xpath(citation.format('date')).extract_first()
                 keyword = response.xpath(citation.format('keywords')).extract_first()
                 pdf_uri = response.xpath(citation.format('pdf_url')).extract_first()
-                lan = response.xpath(citation.format('language')).extract_first()
+                language = response.xpath(citation.format('language')).extract_first()
 
                 article['title'] = title
                 article['abstract'] = abstract
@@ -95,6 +96,7 @@ class ToScrapeCSSSpider(CrawlSpider):
                 article['publication_date'] = date
                 article['keyword'] = keyword
                 article['issn'] = issn
+                article['language'] = language
 
                 journal['title'] = journal_title
                 journal['issn'] = issn
@@ -106,6 +108,9 @@ class ToScrapeCSSSpider(CrawlSpider):
 
                 #Match reference with regex
                 pattern = "^(\s*References\s*$)|(^\s*Referensi\s*$)"
+                pattern2 = r"^[a-zA-Z/[]|['__']{2}"
+                pattern3 = r"\s?[a-zA-Z0-9\.\ ]{1}$"
+                
                 result = response.xpath('//*[text()[re:test(., "{}")]]/parent::*//text()'.format(pattern)).extract()
                 
                 #Remove control character like \n,\t, etc.
@@ -114,6 +119,8 @@ class ToScrapeCSSSpider(CrawlSpider):
                 and x.translate(t) != "References" and x.translate(t) != "Referensi"]
                 
                 references['title'] = ref
+                
+                #Count item
                 self.count += 1
                 yield {'journal' : journal, 'item' : item, 'article' : article, 
                 'author' : author, 'references' : references}     
