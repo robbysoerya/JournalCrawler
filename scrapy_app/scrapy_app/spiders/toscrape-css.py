@@ -31,7 +31,8 @@ class ArticleItem(Item):
 
 class ReferencesItem(Item):
     title = Field()
-
+    classification = Field()
+    
 class AuthorItem(Item):
     name = Field()
     affiliate = Field()

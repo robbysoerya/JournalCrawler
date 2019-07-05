@@ -33,6 +33,7 @@ class Article(models.Model):
 class References(models.Model):
     c_references_id = models.AutoField(primary_key=True)
     title = models.TextField(null=True)
+    classification = models.TextField(null=True)
     c_article_id = models.ForeignKey('Article', on_delete=models.PROTECT)
 
     def __str__(self):
