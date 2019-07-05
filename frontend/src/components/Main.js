@@ -232,5 +232,6 @@ class Home extends React.Component {
           <div></div>{this.state.exist ? this.renderData() : null}</div>
     )
   }
+}
 
 export default Home
