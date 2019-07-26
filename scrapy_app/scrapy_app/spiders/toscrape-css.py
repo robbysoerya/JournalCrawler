@@ -6,6 +6,13 @@ from scrapy.item import Item, Field
 from scrapy.exceptions import CloseSpider
 from scrapy.log import ERROR
 import re,os,requests
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.externals import joblib
+from sklearn.metrics import recall_score, classification_report
 
 class MyItem(Item):
     url = Field()
@@ -103,7 +110,7 @@ class ToScrapeCSSSpider(CrawlSpider):
                 journal['issn'] = issn
                 journal['issue'] = issue
                 journal['volume'] = volume
- 
+
                 author['name'] = author_name
                 author['affiliate'] = author_institution
 
@@ -117,10 +124,22 @@ class ToScrapeCSSSpider(CrawlSpider):
                 #Remove control character like \n,\t, etc.
                 t = dict.fromkeys(range(32))
                 ref = [x.translate(t) for x in result if x.translate(t) 
-                and x.translate(t) != "References" and x.translate(t) != "Referensi"]
-                
+                and x.translate(t) != "References" and x.translate(t) != "Referensi" and len(x) > 20]
+
+                data = pd.read_csv(
+                    '/home/bandreg/Skripsi/Program/JournalCrawler/scrapy_app/scrapy_app/spiders/data2.csv', index_col=None)
+
+                vectorizer = CountVectorizer()
+                X1 = vectorizer.fit_transform(data['Reference'].values)
+
+                test = vectorizer.transform(ref)
+                model = joblib.load(
+                    '/home/bandreg/Skripsi/Program/JournalCrawler/scrapy_app/scrapy_app/spiders/model.sav')
+                result = model.predict(test)
+
                 references['title'] = ref
-                
+                references['classification'] = result
+
                 #Count item
                 self.count += 1
                 yield {'journal' : journal, 'item' : item, 'article' : article, 

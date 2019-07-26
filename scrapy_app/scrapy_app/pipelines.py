@@ -18,12 +18,14 @@ class ReferencesAppPipeline(object):
     def process_item(self, references, spider):
         
         titles = references['references']['title']
+        classification = references['references']['classification']
         
-        for title in titles:
+        for i in range(len(titles)):
             self.references = References()
             c_article_id = Article.objects.latest('c_article_id')
             self.references.c_article_id = c_article_id
-            self.references.title = title
+            self.references.title = titles[i]
+            self.references.classification = classification[i]
             self.references.save()
 
         return references
