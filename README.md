@@ -1,11 +1,10 @@
 # Journal Crawler
 
-* Basic structure of a Django project.
-* Basic structure for scrapy.
+* Structure of a Django project.
+* Structure for scrapy.
 * Configuration of scrapy in order to access Django models objects.
-* Basic scrapy pipeline to save crawled objets to Django models.
-* Basic spider definition
-* Simple front end with React
+* Scrapy pipeline to save crawled objets to Django models.
+* Front end with React
 
 ## Setup
 1 - Install requirements
@@ -31,9 +30,10 @@ $ scrapyd
 
 At this point you will be able to send job request to Scrapyd. This project is setup with a demo spider from the oficial tutorial of scrapy. To run it you must send a http request to Scrapyd with the job info
 ````
-curl http://localhost:6800/schedule.json -d project=default -d spider=toscrape-css
+open in browser http://localhost:8000/home
 ````
 
-The crawled data will be automatically be saved in the Django models
-
-This repo is inspired by an article from Ali Oğuzhan Yıldız, https://medium.com/@ali_oguzhan/how-to-use-scrapy-with-django-application-c16fabd0e62e
+The crawled data will be automatically be saved in the Django models.
+To view database of crawler with Django Admin
+```
+open in browser http://localhost:8000/admin
