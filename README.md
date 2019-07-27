@@ -37,3 +37,4 @@ The crawled data will be automatically be saved in the Django models.
 To view database of crawler with Django Admin
 ```
 open in browser http://localhost:8000/admin
+```
