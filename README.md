@@ -1,12 +1,13 @@
 # Journal Crawler
 
 * Used Python3.6
+* Database with PostgreSQL
 * Structure of a Django project.
 * Structure for scrapy.
 * Configuration of scrapy in order to access Django models objects.
 * Scrapy pipeline to save crawled objets to Django models.
-* Classification with Random Forest
-* Front end with React
+* Machine Learning with Random Forest
+* React for Front End
 
 ## Setup
 1 - Install requirements
