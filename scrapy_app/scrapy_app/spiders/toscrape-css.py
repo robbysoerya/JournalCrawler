@@ -68,7 +68,8 @@ class ToScrapeCSSSpider(CrawlSpider):
             item = MyItem()
             item['url'] = response.url
             p = r"^\S*article\/view\/\d*$"
-
+            a = "^(\s*Abstrak\s*$)|(^\s*Abstract\s*$)"
+            
             if(re.match(p,item['url'])):
 
                 journal = JournalItem()
@@ -96,6 +97,9 @@ class ToScrapeCSSSpider(CrawlSpider):
                 pdf_uri = response.xpath(citation.format('pdf_url')).extract_first()
                 language = response.xpath(citation.format('language')).extract_first()
 
+                if not abstract:
+                    abstract = response.xpath('//*[text()[re:test(., "{}")]]/parent::*//text()'.format(a)).extract()
+                
                 article['title'] = title
                 article['abstract'] = abstract
                 article['doi'] = doi
