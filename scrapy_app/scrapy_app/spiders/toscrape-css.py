@@ -67,7 +67,7 @@ class ToScrapeCSSSpider(CrawlSpider):
         if (self.count < int(self.limit)):          
             item = MyItem()
             item['url'] = response.url
-            p = r"^\S*article\/view\/\d*$"
+            p = r"^{}*article\/view\/\d*$".format(self.start_urls)
 
             if(re.match(p,item['url'])):
 
