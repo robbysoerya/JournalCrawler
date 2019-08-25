@@ -77,7 +77,7 @@ class ToScrapeCSSSpider(CrawlSpider):
             item = MyItem()
             item['url'] = response.url
             p = r"^\S*article\/view\/\S*$"
-            a = "^(\s*Abstrak\s*$)|(^\s*Abstract\s*$)"
+            a = r"^(\s*Abstrak\s*$)|(^\s*Abstract\s*$)"
             
             if(re.match(p,item['url'])):
 
