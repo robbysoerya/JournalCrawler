@@ -91,39 +91,24 @@ class ToScrapeCSSSpider(CrawlSpider):
                 dc = "//meta[@name='DC.{}']/@content"
                 citation = "//meta[@name='citation_{}']/@content"
 
-                author_name = response.xpath(
-                    dc.format('Creator.PersonalName')).extract()
-                abstract = response.xpath(
-                    dc.format('Description')).extract_first()
-                doi = response.xpath(
-                    dc.format('Identifier.DOI')).extract_first()
+                author_name = response.xpath(dc.format('Creator.PersonalName')).extract()
+                abstract = response.xpath(dc.format('Description')).extract_first()
+                doi = response.xpath(dc.format('Identifier.DOI')).extract_first()
                 issn = response.xpath(dc.format('Source.ISSN')).extract_first()
-                issue = response.xpath(
-                    dc.format('Source.Issue')).extract_first()
-                volume = response.xpath(
-                    dc.format('Source.Volume')).extract_first()
+                issue = response.xpath(dc.format('Source.Issue')).extract_first()
+                volume = response.xpath(dc.format('Source.Volume')).extract_first()
                 title = response.xpath(dc.format('Title')).extract_first()
-                uri = response.xpath(
-                    dc.format('Identifier.URI')).extract_first()
-                journal_title = response.xpath(
-                    citation.format('journal_title')).extract_first()
-                author_institution = response.xpath(
-                    citation.format('author_institution')).extract()
+                uri = response.xpath(dc.format('Identifier.URI')).extract_first()
+                journal_title = response.xpath(citation.format('journal_title')).extract_first()
+                author_institution = response.xpath(citation.format('author_institution')).extract()
                 date = response.xpath(citation.format('date')).extract_first()
-                keyword = response.xpath(
-                    citation.format('keywords')).extract_first()
-                pdf_uri = response.xpath(
-                    citation.format('pdf_url')).extract_first()
-                language = response.xpath(
-                    citation.format('language')).extract_first()
-
-                if not abstract:
-                    abstract = response.xpath(
-                        '//*[text()[re:test(., "{}")]]/parent::*//text()'.format(a)).extract()
+                keyword = response.xpath(citation.format('keywords')).extract_first()
+                pdf_uri = response.xpath(citation.format('pdf_url')).extract_first()
+                language = response.xpath(citation.format('language')).extract_first()
 
                 if not abstract:
                     abstract = response.xpath('//*[text()[re:test(., "{}")]]/parent::*//text()'.format(a)).extract()
-                
+
                 article['title'] = title
                 article['abstract'] = abstract
                 article['doi'] = doi
@@ -147,27 +132,30 @@ class ToScrapeCSSSpider(CrawlSpider):
                 pattern2 = r"^[a-zA-Z/[]|['__']{2}"
                 pattern3 = r"\s?[a-zA-Z0-9\.\ ]{1}$"
 
-                result = response.xpath(
-                    '//*[text()[re:test(., "{}")]]/parent::*//text()'.format(pattern)).extract()
+                result = response.xpath('//*[text()[re:test(., "{}")]]/parent::*//text()'.format(pattern)).extract()
 
                 #Remove control character like \n,\t, etc.
                 t = dict.fromkeys(range(32))
                 ref = [x.translate(t) for x in result if x.translate(t)
                        and x.translate(t) != "References" and x.translate(t) != "Referensi" and len(x) > 20]
+                
+                references['title'] = ""
+                references['classification'] = ""
 
-                data = pd.read_csv(
-                    '/home/bandreg/Skripsi/Program/JournalCrawler/scrapy_app/scrapy_app/spiders/data2.csv', index_col=None)
+                if len(ref) > 0:
+                    data = pd.read_csv(
+                        '/home/bandreg/Skripsi/Program/JournalCrawler/scrapy_app/scrapy_app/spiders/data2.csv', index_col=None)
 
-                vectorizer = CountVectorizer()
-                X1 = vectorizer.fit_transform(data['Reference'].values)
+                    vectorizer = CountVectorizer()
+                    X1 = vectorizer.fit_transform(data['Reference'].values)
 
-                test = vectorizer.transform(ref)
-                model = joblib.load(
-                    '/home/bandreg/Skripsi/Program/JournalCrawler/scrapy_app/scrapy_app/spiders/model.sav')
-                result = model.predict(test)
+                    test = vectorizer.transform(ref)
+                    model = joblib.load(
+                        '/home/bandreg/Skripsi/Program/JournalCrawler/scrapy_app/scrapy_app/spiders/model.sav')
+                    result = model.predict(test)
 
-                references['title'] = ref
-                references['classification'] = result
+                    references['title'] = ref
+                    references['classification'] = result
 
                 #Count item
                 self.count += 1
