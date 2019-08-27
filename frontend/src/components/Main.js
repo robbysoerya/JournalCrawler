@@ -17,7 +17,9 @@ class Home extends React.Component {
           pagination: null,
           data: null,
           taskID: null,
-          uniqueID: null
+          uniqueID: null,
+          task: '',
+          unique: ''
       }
       this.statusInterval = 1
   }
@@ -60,7 +62,56 @@ class Home extends React.Component {
             this.statusInterval = setInterval(this.checkCrawlStatus, 2000)
         });
     });
-  }
+
+}
+
+handleCheckButton = (event) => {
+    if (!this.state.task && !this.state.unique) return false;
+
+    $.get('/api/crawl/',
+        { task_id: this.state.task, unique_id: this.state.unique }, resp => {
+
+            if (resp.status == "finished") {
+                clearInterval(this.statusInterval)
+                this.setState({ 'loading': false })
+                $(document).ready(function () {
+                    $('#data').DataTable({
+                        button: ['csv']
+                    });
+                    $('#data').removeClass('display').addClass('table table-striped table-bordered');
+                });
+            }
+
+            if (resp.data) {
+                // If response contains a data array
+                // That means crawling completed and we have results here
+                // No need to make more requests.
+                // Just clear interval
+                //clearInterval(this.statusInterval)
+                this.setState({
+                    data: resp.data,
+                    exist: true,
+                    crawlingStatus: resp.status,
+                    scraped: resp.item_scraped,
+                })
+            } else if (resp.error) {
+                // If there is an error
+                // also no need to keep requesting
+                // just show it to user
+                // and clear interval
+                //clearInterval(this.statusInterval)
+                //  alert(resp.error)
+            } else if (resp.status) {
+                // but response contains a `status` key and no data or error
+                // that means crawling process is still active and running (or pending)
+                // don't clear the interval.
+                this.setState({
+                    crawlingStatus: resp.status
+                });
+            }
+        });
+    }
+
 
   componentWillUnmount() {
       // i create this.statusInterval inside constructor method
@@ -90,7 +141,7 @@ class Home extends React.Component {
     renderData() {
         return (
             <div>
-                <div>Item Save : {this.state.scraped} of {this.state.limit}</div>
+                <div>Item Save : {this.state.scraped}</div>
                 <table id="data" className="display table table-striped table-hover">
                     <thead>
                         <tr>
@@ -146,7 +197,7 @@ class Home extends React.Component {
 
     renderCheck() {
     return (
-        <button type="submit" onClick={this.checkCrawlStatus} className="btn btn-primary btn-sm">
+        <button type="submit" onClick={this.handleCheckButton} className="btn btn-primary btn-sm">
         Check
         </button>
         
@@ -212,9 +263,10 @@ class Home extends React.Component {
   render () {
     // render componenet
       return (<div>
-          <h1 className="page-title">Journal Crawler</h1>
-          <hr />
-          <div className="container">
+        <div className="container mt-3">
+            <h1 className="page-title text-center">Journal Crawler</h1>
+        </div>
+        <div className="container">
               <div className="row">
                         <div className="input-group mb-3">
                             <div className="input-group-prepend">
@@ -224,11 +276,30 @@ class Home extends React.Component {
                         </div>
                       <input placeholder="Limit" className="form-control col-md-1 mr-1" type="number" pattern="[0-9]" onChange={this.handleChange} id="limit" aria-describedby="basic-addon3"></input>
                   <input placeholder="Publisher" type="text" onChange={this.handleChange} className="form-control col-md-4" id="publisher" aria-describedby="basic-addon3" />
-                      {this.state.loading ? this.renderStartButton() : this.renderButton()}
+                      {this.state.loading ? this.renderStartButton() : this.renderButton()}    
+                 
+                  <div className="input-group mb-3 mt-3">
+ 
+                      <div className="input-group-prepend">
+                          <span className="input-group-text" id="basic-addon3">TASK ID</span>
                       </div>
+                      <input type="text" onChange={this.handleChange} className="form-control" id="task" aria-describedby="basic-addon3" />
+ 
+                      <div className="input-group-prepend">
+                          <span className="input-group-text" id="basic-addon3">UNIQUE ID</span>
+                      </div>
+
+                      <input type="text" onChange={this.handleChange} className="form-control" id="unique" aria-describedby="basic-addon3" />
+               
+                  </div>
+                    
+                    {this.renderCheck()}
               </div>
-          <hr />
-          <div>{this.state.taskID ? this.renderText() : null}</div>
+              <div className="row justify-content-center">
+                  <a className="text-center" href="/admin">Login to admin</a>
+              </div>
+              </div>
+             <div>{this.state.taskID ? this.renderText() : null}</div>
           <div></div>{this.state.exist ? this.renderData() : null}</div>
     )
   }
